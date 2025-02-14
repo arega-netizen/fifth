@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block page_title %}{{ block.super }} / Connector Metrics{% endblock page_title %}
+{% load bootstrap3 %}
+{% block content %}
+<div id="metrics">
+	{% bootstrap_javascript jquery='full' %}  {# Embed Bootstrap JS+jQuery #}
+	{% block extrahead %}       {# Extra Resources Start #}
+	{{ form.media }}            {# Form required JS and CSS #}
+	{% endblock %}
+	<h1>{% trans "Connector Metrics" %}</h1>
+
+	<div id="metrics-filter">
+		<h2>{% trans "Filter" %}</h2>
+		<form action="{% url 'connector-metrics' %}" method="get">
+			{% if form.non_field_errors %}
+			<div class="alert alert-danger">
+				{{ form.non_field_errors }}
+			</div>
+			{% endif %}
+
+			<div class="row">
+				<div class="col-xs-6 col-sm-3">
+					{% if form.from_date.errors %}<div class="alert alert-danger">{{ form.from_date.errors }}</div>{% endif %}
+					<div class="form-group">
+						<strong>{% trans "From Date" %} </strong>
+						{{ form.from_date }}
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					{% if form.to_date.errors %}<div class="alert alert-danger">{{ form.to_date.errors }}</div>{% endif %}
+					<div class="form-group">
+						<strong>{% trans "To Date" %} </strong>
+						{{ form.to_date }}
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					{% if form.limit.errors %}<div class="alert alert-danger">{{ form.limit.errors }}</div>{% endif %}
+					<div class="form-group">
+						<strong>{% trans "Limit" %} </strong>
+						{{ form.limit }}
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					{% if form.offset.errors %}<div class="alert alert-danger">{{ form.offset.errors }}</div>{% endif %}
+					<div class="form-group">
+						<strong>{% trans "Offset" %} </strong>
+						{{ form.offset }}
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-12 col-sm-4">
+					{% if form.connector_name.errors %}<div class="alert alert-danger">{{ form.connector_name.errors }}</div>{% endif %}
+					<div class="form-group">
+						<strong>{% trans "Connector Name" %} </strong>
+						{{ form.connector_name }}
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					{% if form.function_name.errors %}<div class="alert alert-danger">{{ form.function_name.errors }}</div>{% endif %}
+					<div class="form-group">
+						<strong>{% trans "Function Name" %} </strong>
+						{{ form.function_name }}
+					</div>
+				</div>
+				<div class="col-xs-12 col-sm-4">
+					{% if form.correlation_id.errors %}<div class="alert alert-danger">{{ form.correlation_id.errors }}</div>{% endif %}
+					<div class="form-group">
+						<strong>{% trans "Correlation Id" %} </strong>
+						{{ form.correlation_id }}
+					</div>
+				</div>
+			</div>
+
+			<button type="submit" class="btn btn-primary">{% trans "Search" %}</button>
+		</form>
+	</div>
+
+
+	<div id="metrics-data">
+		<div class="table-responsive">
+			<table class="table table-hover tablesorter" aria-describedby="connector list">
+				<thead>
+				<tr>
+					<th scope="col">#</th>
+					<th scope="col">{% trans "Date" %}</th>
+					<th scope="col">{% trans "Connector Name" %}</th>
+					<th scope="col">{% trans "Function Name" %}</th>
+					<th scope="col">{% trans "Correlation ID" %}</th>
+					<th scope="col">{% trans "Duration (ms)" %}</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for metric in metrics %}
+					<tr>
+						<td>{{ forloop.counter }}</td>
+						<td>{{ metric.date|date:"Y-m-d H:m:s" }}</td>
+						<td>{{ metric.connector_name }}</td>
+						<td>{{ metric.function_name }}</td>
+						<td>{{ metric.correlation_id }}</td>
+						<td>{{ metric.duration }}</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+</div>
+{% endblock %}
+
+{% block extracss %}
+		<link href="{% static 'metrics/css/metrics.css' %}" rel="stylesheet">
+{% endblock extracss %}

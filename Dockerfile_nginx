@@ -1,0 +1,10 @@
+FROM python:3.10 AS builder
+COPY . /app
+RUN cp /app/.github/local_settings_container.py /app/apimanager/apimanager/local_settings.py
+RUN pip install -r /app/requirements.txt
+WORKDIR /app
+RUN python ./apimanager/manage.py collectstatic --noinput
+FROM nginxinc/nginx-unprivileged:stable
+COPY nginx.apimanager.conf /etc/nginx/conf.d/apimanager.conf
+COPY --from=builder /app/apimanager/static /usr/share/nginx/html
+CMD nginx -g "daemon off;"

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block page_title %}{{ block.super }} / Users{% endblock page_title %}
+
+{% block content %}
+    <div id="user-invitation">
+        <h1>{% trans "Invite User" %}</h1>
+
+        <form action="{% url 'my-user-invitation' %}" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-4">
+                    {% if form.bank_id.errors %}<div class="alert alert-danger">{{ form.bank_id.errors }}</div>{% endif %}
+                    <div class="form-group">
+                        <strong>{% trans "Bank Id" %} </strong>
+                        {{ form.bank_id }}
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4">
+                    {% if form.first_name.errors %}<div class="alert alert-danger">{{ form.first_name.errors }}</div>{% endif %}
+                    <div class="form-group">
+                        <strong>{% trans "First Name" %} </strong>
+                        {{ form.first_name }}
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4">
+                    {% if form.last_name.errors %}<div class="alert alert-danger">{{ form.last_name.errors }}</div>{% endif %}
+                    <div class="form-group">
+                        <strong>{% trans "Last Name" %} </strong>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-4">
+                    {% if form.email.errors %}<div class="alert alert-danger">{{ form.email.errors }}</div>{% endif %}
+                    <div class="form-group">
+                        <strong>{% trans "Email" %} </strong>
+                        {{ form.email }}
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4">
+                    {% if form.company.errors %}<div class="alert alert-danger">{{ form.company.errors }}</div>{% endif %}
+                    <div class="form-group">
+                        <strong>{% trans "Company" %} </strong>
+                        {{ form.company }}
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4">
+                    {% if form.country.errors %}<div class="alert alert-danger">{{ form.country.errors }}</div>{% endif %}
+                    <div class="form-group">
+                        <strong>{% trans "Country" %} </strong>
+                        {{ form.country }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-4">
+                    {% if form.purpose.errors %}<div class="alert alert-danger">{{ form.purpose.errors }}</div>{% endif %}
+                    <div class="form-group">
+                        <strong>{% trans "Purpose" %} </strong>
+                        {{ form.purpose }}
+                    </div>
+                </div>
+            </div>
+
+            <input type="submit" value='{% trans "Create" %}' class="btn btn-primary btn-green" />
+            <div class="table-responsive">
+                <table class="table table-hover tablesorter" id="invitation-list" aria-describedby="invitation list">
+                    <thead>
+                    <th scope="col">{% trans "First Name" %}</th>
+                    <th scope="col">{% trans "Last Name" %}</th>
+                    <th scope="col">{% trans "Email" %}</th>
+                    <th scope="col">{% trans "Company" %}</th>
+                    <th scope="col">{% trans "Country" %}</th>
+                    <th scope="col">{% trans "Status" %}</th>
+                    </thead>
+                    <tbody>
+                    {% for invitation in invitations %}
+                        <tr>
+                            <td>{{ invitation.first_name }}</td>
+                            <td>{{ invitation.last_name }}</td>
+                            <td>{{ invitation.email }}</td>
+                            <td>{{ invitation.company }}</td>
+                            <td>{{ invitation.country }}</td>
+                            <td>{{ invitation.status }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+
+
+{% block extrajs %}
+{% endblock extrajs %}
+
+{% block extracss %}
+    <link href="{% static 'users/css/users.css' %}" rel="stylesheet">
+{% endblock extracss %}

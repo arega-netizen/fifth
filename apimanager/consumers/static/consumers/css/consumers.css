@@ -1,0 +1,20 @@
+.consumers #consumer-list  {
+	margin-top: 20px;
+}
+
+#consumers .btn-group-vertical.filter-enabled,
+#consumers .btn-group-vertical.filter-apptype {
+	margin-top: 10px;
+}
+
+#consumers-detail div {
+	margin: 5px 0;
+}
+
+#consumers .filter a {
+	font-size: 12px;
+}
+
+#consumers .actions .btn {
+	margin-bottom: 2px;
+}

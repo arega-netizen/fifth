@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block page_title %}{{ block.super }} / Users{% endblock page_title %}
+
+{% block content %}
+<div id="users">
+	<h1>{% trans "Users" %}</h1>
+
+    <div id="users-filters">
+        <h4>{% trans "Filters" %}</h4>
+        <div class="hidden-xs">
+            {% include "users/includes/filter_role.html" %}
+            {% include "users/includes/filter_email.html" %}
+            {% include "users/includes/filter_username.html" %}
+			<div id="filter-time" class="filter">
+				<div class="btn-group hidden-sm hidden-xs filter-time" role="group" aria-label="filter-time">
+					{% include "users/includes/filter_locked.html" %}
+				</div>
+				<div class="btn-group-vertical visible-sm visible-xs filter-time" role="group" aria-label="filter-time">
+					{% include "users/includes/filter_locked.html" %}
+				</div>
+			</div>
+        </div>
+        <div class="hidden-sm hidden-md hidden-lg">
+            <div class="row">
+                <div class="col-xs-12">
+                    {% include "users/includes/filter_role.html" %}
+                </div>
+                <div class="col-xs-12">
+                    {% include "users/includes/filter_email.html" %}
+                </div>
+				<div class="col-xs-12">
+                    {% include "users/includes/filter_username.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-12">
+
+            <h4>{% trans "Pagination" %}</h4>
+                {% include "users/includes/filter_pagination.html" %}
+        </div>
+    </div>
+
+	<h4>{% trans "Statistics" %}</h4>
+	<ul id="statistics">
+		<li>{% trans "Total number of users" %}: {{ statistics.users_num }}
+	</ul>
+
+	<div class="table-responsive">
+		<table class="table table-hover tablesorter" id="users-list" aria-describedby="users list">
+			<thead>
+				<th scope="col">{% trans "User Id" %}</th>
+				<th scope="col">{% trans "Username" %}</th>
+				<th scope="col">{% trans "Email" %}</th>
+				<th scope="col">{% trans "Action" %}</th>
+			</thead>
+			<tbody>
+			{% for user in users %}
+				{% url 'users-detail' user.user_id as url_users_detail %}
+				<tr data-user-id="{{ user.user_id }}">
+					<td><a href="{{ url_users_detail }}">{{ user.user_id }}</td>
+					<td>{{ user.username }}</td>
+					<td>{{ user.email }}</td>
+					<td><a href="{{ url_users_detail }}" class="btn btn-primary">{% trans "Detail" %}</a></td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+{% comment %}
+	<script type="text/javascript" src="{% static 'users/js/users.js' %}"></script>
+	<script type="text/javascript">
+	</script>
+{% endcomment %}
+{% endblock extrajs %}
+
+
+{% block extracss %}
+		<link href="{% static 'users/css/users.css' %}" rel="stylesheet">
+{% endblock extracss %}

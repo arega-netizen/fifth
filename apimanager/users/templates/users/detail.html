@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block page_title %}{{ block.super }} / {{ apiuser.username }}{% endblock page_title %}
+
+{% block content %}
+<div id="users-detail">
+	<h1>{% trans "User" %} {{ apiuser.username }}</h1>
+
+	<div id="users-detail-user_id">
+		<strong>{% trans "User ID" %}</strong><br />
+		<span>{{ apiuser.user_id }}</span>
+	</div>
+
+	<div id="users-detail-email">
+		<strong>{% trans "Email" %}</strong><br />
+		<span>{{ apiuser.email }}</span>
+	</div>
+
+	<div id="users-detail-provider">
+		<strong>{% trans "Provider" %}</strong><br />
+		<span>{{ apiuser.provider }}</span>
+	</div>
+
+	<div id="users-detail-provider_id">
+		<strong>{% trans "Provider ID" %}</strong><br />
+		<span>{{ apiuser.provider_id }}</span>
+	</div>
+	
+	<div id="users-detail-deleted">
+		<strong>{% trans "Deleted" %}</strong><br />
+		<span>{{ apiuser.is_deleted }}</span>
+	</div>
+
+    <div id="users-detail-locked">
+        <strong>{% trans "Locked" %}</strong><br />
+        <span>{{ apiuser.is_locked }}</span>
+    </div>
+
+    <form action="{% url 'user-status-update' apiuser.user_id apiuser.username %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}" />
+        <input type="hidden" name="role_name" value="{{ entitlement.role_name }}" />
+		{% if apiuser.is_deleted %}
+
+		{% else %}
+			<button type="submit" class="btn btn-primary btn-red" value ="Delete" name ="Delete">{% trans "Delete User" %}</button>
+		{% endif %}
+		{% if apiuser.is_locked %}
+			<button type="submit" class="btn btn-primary btn-green" value ="Unlock" name ="Unlock">{% trans "Unlock User" %}</button>
+		{% else %}
+			<button type="submit" class="btn btn-primary btn-green" value ="Lock" name ="Lock">{% trans "Lock User" %}</button>
+		{% endif %}
+
+    </form>
+
+
+{% if apiuser.user_id %}
+	<div id="users-detail-entitlements">
+		<h2>{% trans "Add Entitlement" %}</h2>
+		<form class="form" action="" method="post">
+			{% csrf_token %}
+			{{ form.user_id }}
+			<div class="row">
+				<div class="col-xs-12 col-md-4">
+					<div class="form-group">
+						<strong>{% trans "Role Name" %}</strong>
+						{{ form.role_name }}
+					</div>
+				</div>
+				<div class="col-xs-12 col-md-8">
+					<div class="form-group">
+						<strong>{% trans "Bank Id" %}</strong>
+						{{ form.bank_id }}
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary btn-green form-control">{% trans "Add" %}</button>
+					</div>
+				</div>
+				<div class="col-sm-12 hidden-xs">
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary btn-green">{% trans "Add" %}</button>
+					</div>
+				</div>
+			</div>
+		</form>
+
+		<h2>{% trans "Entitlements" %}</h2>
+		<div class="table-responsive">
+			<table class="table table-striped" aria-describedby="uses table">
+				<thead>
+					<th scope="col">{% trans "Role name" %}</th>
+					<th scope="col">{% trans "Bank Id" %}</th>
+					<th scope="col">{% trans "Action" %}</th>
+				</thead>
+				<tbody>
+				{% for entitlement in apiuser.entitlements.list %}
+					<tr>
+						<td>{{ entitlement.role_name }}</td>
+						<td>{{ entitlement.bank_id }}</td>
+						<td>
+						{# SuperAdmin has no entitlement_id! #}
+						{% if entitlement.entitlement_id %}
+							<form action="{% url 'users-delete-entitlement' apiuser.user_id entitlement.entitlement_id %}" method="post">
+								{% csrf_token %}
+								<input type="hidden" name="next" value="{{ request.path }}" />
+								<input type="hidden" name="role_name" value="{{ entitlement.role_name }}" />
+								<button type="submit" class="btn btn-primary btn-red">{% trans "Delete" %}</button>
+							</form>
+						{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+
+		
+		<h2>{% trans "Non Personal User Attributes" %}</h2>
+		<div class="table-responsive">
+			<table class="table table-striped" aria-describedby="uses table">
+				<thead>
+					<th scope="col">{% trans "Name" %}</th>
+					<th scope="col">{% trans "Type" %}</th>
+					<th scope="col">{% trans "Value" %}</th>
+					<th scope="col">{% trans "Insert Date" %}</th>
+					<th scope="col">{% trans "Action" %}</th>
+				</thead>
+				<tbody>
+				{% for attribute in attributes.user_attributes %}
+					<tr>
+						<td>{{ attribute.name }}</td>
+						<td>{{ attribute.type }}</td>
+						<td>{{ attribute.value }}</td>
+						<td>{{ attribute.insert_date }}</td>
+						<td>
+						{% if attribute.user_attribute_id %}
+							<form action="{% url 'users-delete-attribute' apiuser.user_id attribute.user_attribute_id %}" method="post">
+								{% csrf_token %}
+								<input type="hidden" name="next" value="{{ request.path }}" />
+								<input type="hidden" name="attribute_name" value="{{ attribute.name }}" />
+								<button type="submit" class="btn btn-primary btn-red">{% trans "Delete" %}</button>
+							</form>
+						{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+
+		<h2>{% trans "Accounts Access" %}</h2>
+		<div class="table-responsive">
+			<table class="table table-striped" aria-describedby="uses table">
+				<thead>
+					<th scope="col">{% trans "Bank ID" %}</th>
+					<th scope="col">{% trans "Account ID" %}</th>
+					<th scope="col">{% trans "View ID" %}</th>
+				</thead>
+				<tbody>
+				{% for account in accounts_access.accounts %}
+					<tr>
+						<td>{{ account.bank_id }}</td>
+						<td>{{ account.account_id }}</td>
+						<td>{{ account.view_id }}</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+{% comment %}
+	<script type="text/javascript" src="{% static 'users/js/users.js' %}"></script>
+	<script type="text/javascript">
+	</script>
+{% endcomment %}
+{% endblock extrajs %}
+
+
+{% block extracss %}
+	<link href="{% static 'users/css/users.css' %}" rel="stylesheet">
+{% endblock extracss %}

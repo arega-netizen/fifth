@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block page_title %}{{ block.super }} / API Metrics{% endblock page_title %}
+{% block extrajs %}
+    <script type="text/javascript" src="{% static 'metrics/js/lastEndpointMetric.js' %}"></script>
+{% endblock extrajs %}
+{% load bootstrap3 %}
+{% block content %}
+<div id="metrics">
+	{% bootstrap_javascript jquery='full' %}  {# Embed Bootstrap JS+jQuery #}
+	{% block extrahead %}       {# Extra Resources Start #}
+	{{ form.media }}            {# Form required JS and CSS #}
+	{% endblock %}
+	<h1>{% trans "API Metrics" %}</h1>
+    <p id ="last_endpoint">getBanks took 43ms at 2023-12-06T11:00:49Z GET /obp/v4.0.0/banks ms. </p>
+    <div id="metrics-filter">
+    	<h2>{% trans "Filter" %}</h2>
+    	<form action="" method="get">
+    		{% if form.non_field_errors %}
+    		<div class="alert alert-danger">
+    			{{ form.non_field_errors }}
+    		</div>
+    		{% endif %}
+
+    		<div class="row">
+    			<div class="col-xs-6 col-sm-3">
+    				{% if form.from_date.errors %}<div class="alert alert-danger">{{ form.from_date.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.from_date.label_tag }}
+    					{{ form.from_date }}
+    				</div>
+    			</div>
+    			<div class="col-xs-6 col-sm-3">
+    				{% if form.from_time.errors %}<div class="alert alert-danger">{{ form.from_time.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.from_time.label_tag }}
+    					{{ form.from_time }}
+    				</div>
+    			</div>
+				<div class="col-xs-6 col-sm-3">
+					{% if form.to_date.errors %}<div class="alert alert-danger">{{ form.to_date.errors }}</div>{% endif %}
+					<div class="form-group">
+						{{ form.to_date.label_tag }}
+						{{ form.to_date }}
+					</div>
+				</div>
+    		</div>
+
+    		<div class="row">
+				<div class="col-xs-6 col-sm-3">
+					{% if form.limit.errors %}<div class="alert alert-danger">{{ form.limit.errors }}</div>{% endif %}
+					<div class="form-group">
+						{{ form.limit.label_tag }}
+						{{ form.limit }}
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					{% if form.offset.errors %}<div class="alert alert-danger">{{ form.offset.errors }}</div>{% endif %}
+					<div class="form-group">
+						{{ form.offset.label_tag }}
+						{{ form.offset }}
+					</div>
+				</div>
+    			<div class="col-xs-6 col-sm-3">
+    				{% if form.consumer_id.errors %}<div class="alert alert-danger">{{ form.consumer_id.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.consumer_id.label_tag }}
+    					{{ form.consumer_id }}
+    				</div>
+    			</div>
+
+    			<div class="col-xs-6 col-sm-3">
+    				{% if form.user_id.errors %}<div class="alert alert-danger">{{ form.user_id.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.user_id.label_tag }}
+    					{{ form.user_id }}
+    				</div>
+    			</div>
+    		</div>
+
+    		<div class="row">
+				<div class="col-xs-6 col-sm-3">
+					{% if form.anon.errors %}<div class="alert alert-danger">{{ form.anon.errors }}</div>{% endif %}
+					<div class="form-group">
+						{{ form.anon.label_tag }}
+						{{ form.anon }}
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					{% if form.app_name.errors %}<div class="alert alert-danger">{{ form.app_name.errors }}</div>{% endif %}
+					<div class="form-group">
+						{{ form.app_name.label_tag }}
+						{{ form.app_name }}
+					</div>
+				</div>
+
+				<div class="col-xs-3">
+    				{% if form.verb.errors %}<div class="alert alert-danger">{{ form.verb.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.verb.label_tag }}
+    					{{ form.verb }}
+    				</div>
+    			</div>
+    			<div class="col-xs-3">
+    				{% if form.url.errors %}<div class="alert alert-danger">{{ form.url.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.url.label_tag }}
+    					{{ form.url }}
+    				</div>
+    			</div>
+    		</div>
+    		<div class="row">
+    			<div class="col-xs-7">
+    				{% if form.implemented_by_partial_function.errors %}<div class="alert alert-danger">{{ form.implemented_by_partial_function.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.implemented_by_partial_function.label_tag }}
+    					{{ form.implemented_by_partial_function }}
+    				</div>
+    			</div>
+
+    			<div class="col-xs-5">
+    				{% if form.implemented_in_version.errors %}<div class="alert alert-danger">{{ form.implemented_in_version.errors }}</div>{% endif %}
+    				<div class="form-group">
+						{{ form.implemented_in_version.label_tag }}
+    					{{ form.implemented_in_version }}
+    				</div>
+    			</div>
+    		</div>
+
+
+    		<button type="submit" class="btn btn-primary">{% trans "Search" %}</button>
+    	</form>
+    </div>
+
+    <div id="metrics-data">
+    	<ul class="nav nav-tabs">
+    	{% block nav_tabs %}
+    		<li class="active"><a href="{% url 'api-metrics' %}?{{ request.GET.urlencode }}">{% trans "List" %}</a></li>
+    		<li><a href="{% url 'api-metrics-summary-partial-function' %}?{{ request.GET.urlencode }}">{% trans "Summary by Partial Function" %}</a></li>
+    	{% endblock nav_tabs %}
+    	</ul>
+
+    	<div class="tab-content">
+    		{% block tab_content %}
+    		<div class="tab-pane active">
+    			<div class="table-responsive-md">
+    				<table class="table table-hover tablesorter" aria-describedby="api list">
+    					<thead>
+							<th scope="col" class="sortless"></th>
+    						<th scope="col">#</th>
+    						<th scope="col" class="sortless">{% trans "Verb Select" %}</th>
+    						<th scope="col" class="col-2">{% trans "URL" %}</th>
+							<th scope="col">{% trans "Source IP" %}</th>
+							<th scope="col">{% trans "Target IP" %}</th>
+    						<th scope="col">{% trans "Date" %}</th>
+							<th scope="col">{% trans "Duration(ms)" %}</th>
+    					</tr>
+    					</thead>
+    					<tbody>
+    					{% for metric in metrics %}
+							{% with i=forloop.counter|stringformat:"s" %}
+							{% with data_id="data"|add:i %}
+							{% with data_id_selector="#"|add:data_id %}
+							<tr data-toggle="collapse" data-target={{ data_id_selector }} class="accordion-toggle" data-toggle="tooltip" data-placement="top" title="Show Detail">
+								<td><button type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"></span></button></td>
+    							<td>{{ forloop.counter }}</td>
+    							<td>{{ metric.verb_selection }}</td>
+    							<td>{{ metric.url }}</td>
+								<td>{{ metric.source_ip}}</td>
+								<td>{{ metric.target_ip }}</td>
+    							<td>{{ metric.date}}</td>
+								<td>{{ metric.duration }}</td>
+    						</tr>
+
+							<tr class="expand-child">
+								<td colspan="12" class="hiddenRow">
+									<div class="accordian-body collapse" id={{ data_id }}>
+										<table class="table table-hover">
+											<thead>
+												<tr class="info filteredRow">
+													<th scope="col">{% trans "Response Body" %}</th>
+    												<th scope="col">{% trans "Details" %}</th>
+												</tr>
+											</thead>
+
+											<tbody>
+												<tr>
+													<td>{{ metric.response_body }}</td>
+													<td>
+														<ul>
+															<li>{% trans "User Name" %}: {{ metric.user_name }}</li>
+															<li>{% trans "User ID" %}: {{ metric.user_id }}</li>
+															<li>{% trans "Developer Email" %}: {{ metric.developer_email }}</li>
+															<li>{% trans "App Name" %}: {{ metric.app_name }}</li>
+															<li>{% trans "Consumer ID" %}: {{ metric.consumer_id }}</li>
+															<li>{% trans "Implemented by Partial Function" %}: {{ metric.implemented_by_partial_function }}</li>
+															<li>{% trans "Implemented In Version" %}: {{ metric.implemented_in_version }}</li>
+														</ul>
+													</td>
+												</tr>
+												
+											</tbody>
+										</table>
+									</div>
+								</td>
+							</tr>
+							{% endwith %}
+							{% endwith %}
+							{% endwith %}
+    					{% endfor %}
+    					</tbody>
+    				</table>
+    			</div>
+    		</div>
+    		{% endblock tab_content %}
+    	</div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extracss %}
+		<link href="{% static 'metrics/css/metrics.css' %}" rel="stylesheet">
+{% endblock extracss %}

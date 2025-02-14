@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% block page_title %}{{ block.super }} / Connector Methods{% endblock page_title %}
+
+{% block content %}
+<h1>{% trans "Connector Methods" %}</h1>
+<h5><a href="https://plugins.jetbrains.com/plugin/16603-obp-push">Get OBP Push (IntelliJ Plugin)</a></h5>
+<div class="row">
+    <div class="col-xs-12 col-sm-2">
+        <label class="form-group">{% trans "Connector Method id" %}:</label> <br>
+    </div>
+    <div class="col-xs-12 col-sm-2">
+        <label class="form-group">{% trans "Method Name" %}:</label> <br>
+    </div>
+    <div class="col-xs-12 col-sm-2">
+        <label class="form-group">{% trans "Programming Language" %}:</label> <br>
+    </div>
+    <div class="col-xs-12 col-sm-6">
+        <label class="form-group">{% trans "Method Body" %}:</label> <br>
+    </div>
+</div>
+<form method="post">
+    {% csrf_token %}
+    {% for connectormethod in connectormethods %}
+    {% url 'connector_detail' connectormethod.connector_method_id as url_connector_detail  %}
+    <div class="runner">
+        <div class="row">
+            <div class="col-xs-12 col-sm-2">
+                <div class="form-group" cols="1" rows="1">
+                    <a class="connector_method_id" href="#">{{ connectormethod.connector_method_id }}</a></div>
+            </div>
+            {% if connectormethod.connector_method_id %}
+            <div class="col-xs-12 col-sm-2">
+                <div class="form-group" cols="1" rows="1">
+                    <div>{{ connectormethod.method_name }}</div></div>
+            </div>
+            <div class="col-xs-12 col-sm-2">
+                <div class="form-group" cols="1" rows="1">
+                    <div>
+                        <select class="connector_method_programming_lang_update form-control">
+                        <option value="{{ connectormethod.programming_lang }}" selected="selected" hidden>{{ connectormethod.programming_lang }}</option>
+                            <option value="Scala">Scala</option>
+                        <option value="Java">Java</option>
+                        <option value="JavaScript">JavaScript</option>
+                    </select></div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <textarea cols="40" rows="1" class="form-control connector_method_body_update" style="margin: 5px -2px 5px 0px; height: 138px; width: 100%;">{{connectormethod.method_body}}</textarea>
+            </div>
+            {% else %}
+            <div class="col-xs-12 col-sm-2">
+                <div class="form-group" cols="1" rows="1">
+                    <input class="connector_method_name" value="Method Name">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-2">
+                <div class="form-group" cols="1" rows="1">
+                    <select class="connector_method_programming_lang form-control">
+                        <option value="Scala">Scala</option>
+                        <option value="Java">Java</option>
+                        <option value="JavaScript">JavaScript</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+                <textarea cols="40" rows="1" class="form-control connector_method_body">{% trans "Enter Your Method Body" %}</textarea>
+            </div>
+            {%  endif %}
+            {%  if forloop.counter0 == 0 %}
+            <div class="col-sm-12 col-sm-2">
+                <div class="form-group">
+                    <button class="btn btn-primary btn-green forSave">{% trans "Create" %}</button>
+                </div>
+            </div>
+            {%  endif %}
+            {%  if forloop.counter0 > 0 %}
+            <div class="col-sm-12 col-sm-2">
+                <div class="form-group">
+                    <button class="btn btn-primary forUpdate">{% trans "Update" %}</button>
+                </div>
+            </div>
+            {%  endif %}
+        </div>
+    </div>
+    {% endfor %}
+</form>
+{% endblock %}
+
+
+{% block extrajs %}
+<script>
+$(document).ready(function($) {
+    $('.runner button.forSave').click(function(e) {
+        e.preventDefault();
+        var t = $(this);
+        var runner = t.parent().parent().parent();
+        var connector_method_name = $(runner).find('.connector_method_name').val();
+        var connector_method_programming_lang = $(runner).find('.connector_method_programming_lang').val();
+        var connector_method_body = $(runner).find('.connector_method_body').val();
+
+        $('.runner button.forSave').attr("disabled", "disabled");
+        $('.runner button.forDelete').attr("disabled", "disabled");
+        $.post('save/connectormethod', {
+            'connector_method_name': connector_method_name,
+            'connector_method_programming_lang': connector_method_programming_lang,
+            'connector_method_body': connector_method_body,
+        }, function(response) {
+            location.reload();
+        });
+    });
+
+    $('.runner button.forUpdate').click(function(e) {
+        e.preventDefault();
+        var t = $(this);
+        var runner = t.parent().parent().parent();
+        var connector_method_id = $(runner).find('.connector_method_id').html();
+        var connector_method_programming_lang_update = $(runner).find('.connector_method_programming_lang_update').val();
+        var connector_method_body_update = $(runner).find('.connector_method_body_update').val();
+
+        $('.runner button.forSave').attr("disabled", "disabled");
+        $('.runner button.forUpdate').attr("disabled", "disabled");
+        $.post('update/connectormethod', {
+            'connector_method_id': connector_method_id,
+            'connector_method_programming_lang_update': connector_method_programming_lang_update,
+            'connector_method_body_update': connector_method_body_update,
+        }, function(response) {
+            location.reload();
+        });
+    });
+});
+</script>
+<script type="text/javascript" src="{% static 'connectormethod/js/connectormethod.js' %}"></script>
+{% endblock extrajs %}
